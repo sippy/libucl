@@ -85,6 +85,13 @@ do {                                                       \
    else utstring_init(s);                                  \
 } while(0)
 
+#define utstring_new_safe(s, el)                           \
+do {                                                       \
+   s = (UT_string*)calloc(1, sizeof(UT_string));           \
+   if (!s) goto el;                                        \
+   else utstring_init(s);                                  \
+} while(0)
+
 #define utstring_renew(s)                                  \
 do {                                                       \
    if (s) {                                                \
