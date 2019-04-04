@@ -83,15 +83,16 @@ ucl_set_err(struct ucl_parser *parser, int code, const char *str, UT_string **er
 			fmt_string = "error while parsing %s: "
 						 "line: %d, column: %d - '%s', character: '0x%02x'";
 		}
-		ucl_create_err(err, fmt_string,
+		ucl_create_err(&parser->_err_buf, fmt_string,
 					   filename, chunk->line, chunk->column,
 					   str, *chunk->pos);
 	}
 	else {
-		ucl_create_err(err, "error while parsing %s: at the end of chunk: %s",
+		ucl_create_err(&parser->_err_buf, "error while parsing %s: at the end of chunk: %s",
 					   filename, str);
 	}
 
+	parser->err = parser->_err_buf;
 	parser->err_code = code;
 	parser->state = UCL_STATE_ERROR;
 }
@@ -2811,6 +2812,9 @@ ucl_parser_new(int flags)
 	}
 
 	memset(parser, 0, sizeof(struct ucl_parser));
+
+	/* Pre-allocate error buffer, so that we can report under ENOMEM */
+	utstring_new_safe(parser->_err_buf, e0);
 
 	UPRM_SAFE(ucl_parser_register_macro, parser, "include", ucl_include_handler, e0);
 	UPRM_SAFE(ucl_parser_register_macro, parser, "try_include", ucl_try_include_handler, e0);
