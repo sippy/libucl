@@ -300,6 +300,7 @@ struct ucl_parser {
 	uint32_t cur_depth;
 	bool top_obj_is_placeholder; /* Created by an empty initial chunk. */
 	UT_string *err;
+	UT_string *_err_buf;
 };
 
 struct ucl_object_userdata {
