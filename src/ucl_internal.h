@@ -245,6 +245,7 @@ struct ucl_parser {
 	ucl_object_t *comments;
 	ucl_object_t *last_comment;
 	UT_string *err;
+	UT_string *_err_buf;
 };
 
 struct ucl_object_userdata {

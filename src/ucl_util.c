@@ -552,8 +552,8 @@ ucl_parser_free (struct ucl_parser *parser)
 		ucl_object_free_internal (tr, false, ucl_object_dtor_free);
 	}
 
-	if (parser->err != NULL) {
-		utstring_free (parser->err);
+	if (parser->_err_buf != NULL) {
+		utstring_free (parser->_err_buf);
 	}
 
 	if (parser->cur_file) {
