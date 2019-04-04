@@ -85,11 +85,29 @@ do {                                                       \
    else utstring_init(s);                                  \
 } while(0)
 
+#define utstring_reserve_safe(s, amt, el)                  \
+do {                                                       \
+  if (((s)->n - (s)->i) < (size_t)(amt)) {                 \
+     char *_tp = (char*)realloc((s)->d, (s)->n + amt);     \
+     if (_tp == NULL) goto el;                             \
+     (s)->d = _tp;                                         \
+     (s)->n += amt;                                        \
+     if ((s)->pd) *((s)->pd) = (s)->d;                     \
+  }                                                        \
+} while(0)
+
+#define utstring_init_safe(s, el)                          \
+do {                                                       \
+  (s)->n = 0; (s)->i = 0; (s)->d = NULL;                   \
+  utstring_reserve_safe(s, 128, el);                       \
+  (s)->d[0] = '\0'; \
+} while(0)
+
 #define utstring_new_safe(s, el)                           \
 do {                                                       \
    s = (UT_string*)calloc(1, sizeof(UT_string));           \
    if (!s) goto el;                                        \
-   else utstring_init(s);                                  \
+   else utstring_init_safe(s, el);                         \
 } while(0)
 
 #define utstring_renew(s)                                  \
