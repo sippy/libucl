@@ -108,13 +108,13 @@ static inline uint64_t
 _mum (uint64_t v, uint64_t p) {
   uint64_t hi, lo;
 #if _MUM_USE_INT128
-#if defined(__aarch64__)
+#if defined(__aarch64__) && defined(ROOT_OF_ALL_EVILS)
   /* AARCH64 needs 2 insns to calculate 128-bit result of the
      multiplication.  If we use a generic code we actually call a
      function doing 128x128->128 bit multiplication.  The function is
      very slow.  */
   lo = v * p, hi;
-  asm ("umulh %0, %1, %2" : "=r" (hi) : "r" (v), "r" (p));
+  __asm ("umulh %0, %1, %2" : "=r" (hi) : "r" (v), "r" (p));
 #else
   __uint128_t r = (__uint128_t) v * (__uint128_t) p;
   hi = (uint64_t) (r >> 64);
