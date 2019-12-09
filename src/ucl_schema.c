@@ -311,7 +311,7 @@ ucl_schema_validate_number (const ucl_object_t *schema,
 			if (fabs (remainder (val, constraint)) > alpha) {
 				ucl_schema_create_error (err, UCL_SCHEMA_CONSTRAINT, obj,
 						"number %.4f is not multiple of %.4f, remainder is %.7f",
-						val, constraint);
+						val, constraint, remainder (val, constraint));
 				ret = false;
 				break;
 			}
