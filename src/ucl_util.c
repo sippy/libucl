@@ -739,6 +739,9 @@ void ucl_parser_free(struct ucl_parser *parser)
 		ucl_object_unref(tr);
 	}
 
+	if (parser->err != NULL && parser->err != parser->_err_buf) {
+		utstring_free(parser->err);
+	}
 	if (parser->_err_buf != NULL) {
 		utstring_free(parser->_err_buf);
 	}
@@ -810,7 +813,12 @@ ucl_parser_get_linenum(struct ucl_parser *parser)
 void ucl_parser_clear_error(struct ucl_parser *parser)
 {
 	if (parser != NULL && parser->err != NULL) {
-		utstring_free(parser->err);
+		if (parser->err == parser->_err_buf) {
+			utstring_clear(parser->err);
+		}
+		else {
+			utstring_free(parser->err);
+		}
 		parser->err = NULL;
 		parser->err_code = 0;
 	}
