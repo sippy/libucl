@@ -61,6 +61,34 @@ struct ucl_parser_saved_state {
 		(chunk)->remain--;        \
 	} while (0)
 
+/*
+ * Format error into the pre-allocated buffer, so that we can report it
+ * under ENOMEM. The message is truncated rather than the buffer grown.
+ * The first error is kept, same as ucl_create_err() does.
+ */
+static void
+ucl_fill_err_buf(struct ucl_parser *parser, const char *fmt, ...)
+{
+	UT_string *eb = parser->_err_buf;
+	va_list ap;
+	int len;
+
+	if (parser->err != NULL) {
+		return;
+	}
+
+	va_start(ap, fmt);
+	len = vsnprintf(eb->d, eb->n, fmt, ap);
+	va_end(ap);
+
+	if (len < 0) {
+		eb->d[0] = '\0';
+		len = 0;
+	}
+	eb->i = ((size_t) len < eb->n) ? (size_t) len : eb->n - 1;
+	parser->err = eb;
+}
+
 static inline void
 ucl_set_err(struct ucl_parser *parser, int code, const char *str, UT_string **err)
 {
@@ -83,16 +111,15 @@ ucl_set_err(struct ucl_parser *parser, int code, const char *str, UT_string **er
 			fmt_string = "error while parsing %s: "
 						 "line: %d, column: %d - '%s', character: '0x%02x'";
 		}
-		ucl_create_err(&parser->_err_buf, fmt_string,
-					   filename, chunk->line, chunk->column,
-					   str, *chunk->pos);
+		ucl_fill_err_buf(parser, fmt_string,
+						 filename, chunk->line, chunk->column,
+						 str, *chunk->pos);
 	}
 	else {
-		ucl_create_err(&parser->_err_buf, "error while parsing %s: at the end of chunk: %s",
-					   filename, str);
+		ucl_fill_err_buf(parser, "error while parsing %s: at the end of chunk: %s",
+						 filename, str);
 	}
 
-	parser->err = parser->_err_buf;
 	parser->err_code = code;
 	parser->state = UCL_STATE_ERROR;
 }
@@ -2815,6 +2842,7 @@ ucl_parser_new(int flags)
 
 	/* Pre-allocate error buffer, so that we can report under ENOMEM */
 	utstring_new_safe(parser->_err_buf, e0);
+	utstring_reserve_safe(parser->_err_buf, 512, e0);
 
 	UPRM_SAFE(ucl_parser_register_macro, parser, "include", ucl_include_handler, e0);
 	UPRM_SAFE(ucl_parser_register_macro, parser, "try_include", ucl_try_include_handler, e0);
