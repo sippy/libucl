@@ -1300,6 +1300,10 @@ bool ucl_parser_process_object_element(struct ucl_parser *parser, ucl_object_t *
 		container = ucl_hash_insert_object(container, nobj,
 										   parser->flags & UCL_PARSER_KEY_LOWERCASE);
 		if (container == NULL) {
+			/* The hash has not taken ownership of the new key object. */
+			ucl_object_unref(nobj);
+			ucl_set_err(parser, UCL_EINTERNAL, "cannot insert an object into hash",
+						&parser->err);
 			return false;
 		}
 		nobj->prev = nobj;
