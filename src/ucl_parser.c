@@ -2292,6 +2292,12 @@ ucl_parse_macro_value(struct ucl_parser *parser,
 
 	p = chunk->pos;
 
+	if (p >= chunk->end) {
+		ucl_set_err(parser, UCL_ESYNTAX, "macro value is missing",
+					&parser->err);
+		return false;
+	}
+
 	switch (*p) {
 	case '"':
 		/* We have macro value encoded in quotes */

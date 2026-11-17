@@ -5,6 +5,7 @@ TESTS = basic.test \
 		generate.test \
 		schema.test \
 		msgpack.test \
+		macro_eof.test \
 		speed.test
 
 TESTS_ENVIRONMENT = $(SH) \
@@ -41,5 +42,9 @@ test_msgpack_SOURCES = test_msgpack.c
 test_msgpack_LDADD = $(common_test_ldadd)
 test_msgpack_CFLAGS = $(common_test_cflags)
 
+test_macro_eof_SOURCES = test_macro_eof.c
+test_macro_eof_LDADD = $(common_test_ldadd)
+test_macro_eof_CFLAGS = $(common_test_cflags)
+
 check_PROGRAMS = test_basic test_speed test_generate test_schema \
-		 test_streamline test_msgpack
+		 test_streamline test_msgpack test_macro_eof
